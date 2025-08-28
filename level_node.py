@@ -149,7 +149,7 @@ room_gen = Rooms() # Create an instance of the Rooms class
 
 
 def main():
-    root = LevelNode(0)
+    '''root = LevelNode(0)
     node1 = LevelNode(1)
     node2 = LevelNode(2)
     node3 = LevelNode(3)
@@ -171,9 +171,9 @@ def main():
     node3.left = node7
     node3.right = node8
 
-    print("Starting interactive transversal")
-    player_tranverse(root)
-    
+    #print("Starting interactive transversal")
+    #player_tranverse(root)
+'''    
     while Menu.quit_game == False:
       print("Welcome to the game!")
       print("Please select an option:")
@@ -188,13 +188,34 @@ def main():
 
           # Generate 10 levels with random rooms
           levels = [room_gen.randum_room() for _ in range(10)]
-          current_level_index = 0
+          #current_level_index = 0
+          
+          root = LevelNode(levels[0])
+          node1 = LevelNode(levels[1])
+          node2 = LevelNode(levels[2])
+          node3 = LevelNode(levels[3])
+          node4 = LevelNode(levels[4])
+          node5 = LevelNode(levels[5])
+          node6 = LevelNode(levels[6])
+     
 
-          while current_level_index < len(levels) and not Menu.quit_game:
-            current_room = levels[current_level_index]
+          root.left = node1
+          root.right = node2
+
+          node1.left = node3
+          node1.right = node4
+
+          node2.left = node5
+          node2.right = node6
+
+          while not Menu.quit_game:
+            '''current_room = levels[current_level_index]
             print(f"\nLevel {current_level_index + 1}: {current_room}\n")
             print("You enter the room")
             print(f"\nWhich room will you to enter? {current_room}\n")
+            '''
+
+            player_tranverse(root)
 
             # Present available directions to the user
             for i, direction in enumerate(current_room):
