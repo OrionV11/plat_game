@@ -56,7 +56,8 @@ def player_tranverse(node, villager, monster, chest, inventory, equip):
                 if equip_item.lower() == 'y':
                     if random_item in armour:
                         if "Helmet" in random_item:
-                            equip['Head'] = random_item
+                            #equip['Head'] = random_item
+                            Hero.equip['Head'] = random_item
                             villager.protection += armour[random_item]
 
                         elif "Chestplate" in random_item:
@@ -234,31 +235,67 @@ class Monsters():
       return False
 
 class Hero():
-  def __init__(self,name,health,strength,protection):
-    #super().__init__() # Remove this line, Hero is not inheriting from another class here
-    self.name = name
-    self.health = health
-    self.strength = strength
-    self.protection = protection
+    equip = { "Head": None,
+              "Chest": None,
+              "Legs": None,
+              "Boots": None,
+              "Hands": None
+            }
 
-  def __str__(self):
-    #return f"{self.name} is {self.age} years old and has {self.health} health and {self.strength} strength." # Remove age as it's not defined
-     return f"{self.name} has {self.health} health and {self.strength} strength."
+    def __init__(self,name,health,strength,protection):
 
-  def attack(self, other):
-    other.health -= self.strength
-    print(f"{self.name} attacks {other.name} for {self.strength} damage. ")
-    print(f"{other.name} has {other.health} health remaining.")
-    if other.health <= 0:
-      print(f"{other.name} has been defeated!")
-      return True
-    else:
-      return False
+        self.name = name
+        self.health = health
+        self.strength = strength
+        self.protection = protection
 
-  def restore(self,other,potion):
-    self.health += items.get(potion)
-    print(f"{self.name} has restored {items.get(potion)} health.")
-    print(f"{self.name} has {self.health} health remaining.")
+
+    def __str__(self):
+        return f"{self.name} has {self.health} health and {self.strength} strength."
+
+    #move equipment function here to call on object
+    def equipment(self, rand_item):
+        if "Helmet" in rand_item and self.equip['Head'] is None:
+            self.equip['Head'] = rand_item
+            self.protection += armour[rand_item]
+
+        #else:
+        ''' protection -= armour[random_item]
+                 equip['Head'] = random_item
+                 protection += armour[random_item]
+
+                base_protection = 10
+                protection = base_protection
+                protection += armour[random_item]
+
+                '''
+
+        elif "Chestplate" in rand_item and self.equip['Chest'] == None:
+            self.equip['Chest'] = rand_item
+            self.protection += armour[rand_item]
+
+        elif "Leg" in rand_item and self.equip['Legs'] == None:
+            self.equip['Legs'] = rand_item
+            self.protection += armour[rand_item]
+
+        elif rand_item in weapons and self.equip['Hands'] == None:
+            self.equip['Hands'] = rand_item
+            self.strength += weapons[rand_item]
+
+    def attack(self, other):
+        other.health -= self.strength
+        print(f"{self.name} attacks {other.name} for {self.strength} damage. ")
+        print(f"{other.name} has {other.health} health remaining.")
+        if other.health <= 0:
+            print(f"{other.name} has been defeated!")
+            return True
+        else:
+            return False
+
+    def restore(self,other,potion):
+        self.health += items.get(potion)
+        print(f"{self.name} has restored {items.get(potion)} health.")
+        print(f"{self.name} has {self.health} health remaining.")
 
 villager = Hero("Bob", 100, 5, 0)
 troll = Monsters("Troll", 100, 20)
