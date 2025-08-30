@@ -54,25 +54,8 @@ def player_tranverse(node, villager, monster, chest, inventory, equip):
             elif random_item in armour or random_item in weapons: # Check if it's armor or a weapon
                 equip_item = input(f"You Pulled a {random_item} from the chest! \n Would you like to Equip it? (y/n): \n")
                 if equip_item.lower() == 'y':
-                    if random_item in armour:
-                        if "Helmet" in random_item:
-                            #equip['Head'] = random_item
-                            Hero.equip['Head'] = random_item
-                            villager.protection += armour[random_item]
-
-                        elif "Chestplate" in random_item:
-                            equip['Chest'] = random_item
-                            villager.protection += armour[random_item]
-
-                        elif "Leg" in random_item:
-                            equip['Legs'] = random_item
-                            villager.protection += armour[random_item]
-
-                    elif random_item in weapons:
-                        equip['Weapon'] = random_item
-                        villager.strength += weapons[random_item]
-
-                    print(f"Your current Equipment: {equip}")
+                    villager.equipment(random_item)
+                    print(f"Your current Equipment: {villager.equip}")
                 else:
                     print("You did not equip the item.")
 
@@ -248,6 +231,7 @@ class Hero():
         self.health = health
         self.strength = strength
         self.protection = protection
+        self.base_protection = protection # Store base protection
 
 
     def __str__(self):
@@ -255,32 +239,33 @@ class Hero():
 
     #move equipment function here to call on object
     def equipment(self, rand_item):
-        if "Helmet" in rand_item and self.equip['Head'] is None:
+        if "Helmet" in rand_item:
+            if self.equip['Head'] is not None:
+                self.protection -= armour[self.equip['Head']] # Subtract old item stats
             self.equip['Head'] = rand_item
-            self.protection += armour[rand_item]
+            self.protection += armour[rand_item] # Add new item stats
 
-        #else:
-        ''' protection -= armour[random_item]
-                 equip['Head'] = random_item
-                 protection += armour[random_item]
 
-                base_protection = 10
-                protection = base_protection
-                protection += armour[random_item]
-
-                '''
-
-        elif "Chestplate" in rand_item and self.equip['Chest'] == None:
+        elif "Chestplate" in rand_item:
+            if self.equip['Chest'] is not None:
+                self.protection -= armour[self.equip['Chest']] # Subtract old item stats
             self.equip['Chest'] = rand_item
-            self.protection += armour[rand_item]
+            self.protection += armour[rand_item] # Add new item stats
 
-        elif "Leg" in rand_item and self.equip['Legs'] == None:
+
+        elif "Leg" in rand_item:
+            if self.equip['Legs'] is not None:
+                self.protection -= armour[self.equip['Legs']] # Subtract old item stats
             self.equip['Legs'] = rand_item
-            self.protection += armour[rand_item]
+            self.protection += armour[rand_item] # Add new item stats
 
-        elif rand_item in weapons and self.equip['Hands'] == None:
+
+        elif rand_item in weapons:
+            if self.equip['Hands'] is not None:
+                self.strength -= weapons[self.equip['Hands']] # Subtract old item stats
             self.equip['Hands'] = rand_item
-            self.strength += weapons[rand_item]
+            self.strength += weapons[rand_item] # Add new item stats
+
 
     def attack(self, other):
         other.health -= self.strength
@@ -357,4 +342,3 @@ while Menu.quit_game == False:
       print("Invalid choice. Please try again.")
 
 print("Thank you for using the game!")
-
