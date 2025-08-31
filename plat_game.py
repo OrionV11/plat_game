@@ -21,9 +21,9 @@ COLOR = "white"
 red = (255,0,0)
 blue = (0,0,255)
 
-def draw(player):
-    WIN.fill(BG)
-    pygame.draw.rect(WIN, COLOR, player)
+def draw(win, player, level):
+    level.drawl(win)
+    pygame.draw.rect(win, COLOR, player)
     pygame.display.update()
 
 class GameState:
@@ -40,32 +40,66 @@ class GameState:
 
 
 class Level:
-    def __init__(self, level_data, background_image, music_file):
+    def __init__(self, level_data, background_image=None, music_file=None):
         self.level_data = level_data
-        self.background = pygame.image.load(background_image)
-        self.music = pygame.mixer.Sound(music_file)
+        self.background = pygame.image.load(background_image) if background_image else None
+        self.music = pygame.mixer.Sound(music_file) if music_file else None
+        
         # ... other level-specific data like enemies, items
 
     def drawl(self, screen):
-        screen.blit(self.background, (0, 0))
+        if self.background:
+            screen.blit(self.background, (0, 0))
+        
+        for row_index, row in enumerate(self.level_data):
+            for col_index, tile_type in enumerate(row):
+                x = col_index * TILE_SIZE
+                y = row_index * TILE_SIZE
+
+                tile_surface = pygame.Surface((TILE_SIZE, TILE_SIZE))
+                if tile_type == 0:
+                    tile_surface.fill(red)
+                elif tile_type == 1:
+                    tile_surface.fill(blue)
+                screen.blit(tile_surface, (x, y))
+
+    def check_player_tile_match(self, player):
+        #Get tile coordinates
+        tile_x = int(player.x / TILE_SIZE)
+        tile_y = int(player.y / TILE_SIZE)
+
+        #Ensure tile coordinates the player is on
+        if 0 <= tile_y < len(self.level_data) and 0 <= tile_x < len(self.level_data[0]):
+            tile_type = self.level_data[tile_y][tile_x]
+
+            # Determine the tile color
+            tile_color = None
+            if tile_type == 0:
+                tile_color = red
+            elif tile_type == 1:
+                tile_color = blue
+    
+            # Check if player color matches tile color
+            # Assuming player.COLOR holds the current color (red or blue)
+            if tile_color and COLOR == tile_color:
+                return True
+        return False
+
         # ... draw tiles based on level_data
 
         pass
 
         # ... draw enemies, items
 
-
-
-
-
-
-
-
 level_map = [
-        [1,1,1,1,1],
-        [1,0,0,0,1],
-        [1,1,0,1,1],
-        [1,0,0,0,1]
+        [1,1,1,1,1,1,1,1,1,1,1,1],
+        [1,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,1,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,1,1,0,0,0,0,0,1],
+        [1,1,0,1,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,1]
         ]
 
 
@@ -77,6 +111,9 @@ class Player:
     def __init__(self,fire,water):
         self.fire = True
         self.water = False
+        self.y_vel = 0
+        self.gravity = 0.1
+
 
     def elements(self):
         global COLOR
@@ -89,6 +126,13 @@ class Player:
             COLOR = "blue"
             self.fire = True
 
+    def apply_gravity(self):
+        self.y_vel += self.gravity
+        self.player.y += self.y_vel
+
+    def jump(self):
+        pass
+
 
 def main():
     running = True
@@ -97,29 +141,13 @@ def main():
     playeri = Player(fire=None, water=None)
     player = pygame.Rect(playeri.x, playeri.y, PLAYER_WIDTH, PLAYER_HEIGHT)
 
-    color_surface = pygame.Surface((100,50))
-    color_surface.fill(red)
+    level = Level(level_map)
+
+    ground_level = HEIGHT - PLAYER_HEIGHT
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-
-        WIN.fill((0,0,0)) #clear screen
-
-        for row_index, row in enumerate(level_map):
-            for col_index, tile_type in enumerate(row):
-                x = col_index * TILE_SIZE
-                y = row_index * TILE_SIZE
-
-                if tile_type == 0:
-                    color_surface.fill(red)
-                    WIN.blit(color_surface, (100, 100))
-                elif tile_type == 1:
-                    color_surface.fill(blue)
-                    WIN.blit(color_surface, (100, 100))
-
-
-
 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT] and player.x - PLAYER_VEL >= 0:
@@ -128,13 +156,19 @@ def main():
             player.x += PLAYER_VEL
         if keys[pygame.K_UP]:
             playeri.elements()
+            if level.check_player_tile_match(player):
+                print("Player color matches tile color")
+        
+        playeri.apply_gravity()
+        player.y = playeri.player.y
 
-        pygame.display.flip()
-        draw(player)
+        if player.y >= ground_level:
+            player.y = ground_level
+            playeri.y_vel = 0
+
+
+        draw(WIN, player, level)
     pygame.quit()
-
-
-
 
 if __name__ == "__main__":
     main()
